@@ -1,0 +1,57 @@
+import tkinter as tk
+import RPi.GPIO as GPIO
+
+# Setup GPIO
+GPIO.setmode(GPIO.BCM)
+red_led = 17
+green_led = 27
+blue_led = 22
+
+GPIO.setup(red_led, GPIO.OUT)
+GPIO.setup(green_led, GPIO.OUT)
+GPIO.setup(blue_led, GPIO.OUT)
+
+# Setup PWM
+red_pwm = GPIO.PWM(red_led, 1000)  # 1 kHz frequency
+green_pwm = GPIO.PWM(green_led, 1000)
+blue_pwm = GPIO.PWM(blue_led, 1000)
+
+red_pwm.start(0)  # Initial duty cycle of 0%
+green_pwm.start(0)
+blue_pwm.start(0)
+
+# Function to update LED intensity
+def update_led_intensity():
+    red_intensity = red_slider.get()
+    green_intensity = green_slider.get()
+    blue_intensity = blue_slider.get()
+    
+    red_pwm.ChangeDutyCycle(red_intensity)
+    green_pwm.ChangeDutyCycle(green_intensity)
+    blue_pwm.ChangeDutyCycle(blue_intensity)
+
+# Create GUI window
+window = tk.Tk()
+window.title("LED Intensity Control")
+
+# Create sliders for LED intensity control
+red_slider = tk.Scale(window, from_=0, to=100, orient=tk.HORIZONTAL, label="Red LED", command=lambda x: update_led_intensity())
+green_slider = tk.Scale(window, from_=0, to=100, orient=tk.HORIZONTAL, label="Green LED", command=lambda x: update_led_intensity())
+blue_slider = tk.Scale(window, from_=0, to=100, orient=tk.HORIZONTAL, label="Blue LED", command=lambda x: update_led_intensity())
+
+red_slider.pack()
+green_slider.pack()
+blue_slider.pack()
+
+# Create exit button
+exit_button = tk.Button(window, text="Exit", command=window.quit)
+exit_button.pack()
+
+# Run the GUI loop
+window.mainloop()
+
+# Cleanup GPIO on exit
+red_pwm.stop()
+green_pwm.stop()
+blue_pwm.stop()
+GPIO.cleanup()
